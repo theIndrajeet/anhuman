@@ -449,7 +449,524 @@
         modalBackdrop.addEventListener('click', hideModal);
 
         async function callGeminiAPI(prompt) {
-            const apiKey = ""; // Keep this empty, it's handled by the environment
+            const apiKey = "AIzaSyC60o2BgwWdsF_ifYy1y-OPaypCxG9ZzLo"; // User's API Key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                return "No response from AI.";
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                return "Sorry, there was an error contacting the AI assistant.";
+            }
+        }
+        
+        // Event Listener for Publication Summaries
+        document.querySelectorAll('.ai-summarize-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const card = e.target.closest('.publication-card');
+                const title = card.querySelector('h3').textContent;
+                const description = card.querySelector('p:last-of-type').textContent;
+                
+                showModal(`AI Summary for "${title}"`);
+                
+                const prompt = `As a legal expert, please expand on the following publication summary. Provide a few hypothetical key arguments or findings that such an article might contain. Make it insightful and concise, formatted in markdown bullet points.\n\n**Title:** ${title}\n**Summary:** ${description}`;
+                
+                const summary = await callGeminiAPI(prompt);
+                modalContent.innerHTML = summary.replace(/\n/g, '<br>'); // Simple markdown conversion
+            });
+        });
+        
+        // Event Listener for AI Assistant
+        const aiAssistantBtn = document.getElementById('ai-assistant-btn');
+        const aiPromptInput = document.getElementById('ai-prompt-input');
+
+        aiAssistantBtn.addEventListener('click', async () => {
+            const userInput = aiPromptInput.value;
+            if (!userInput.trim()) {
+                // Using a custom modal for alert
+                showModal("Input Required");
+                modalContent.innerHTML = "Please enter a question or message.";
+                return;
+            }
+
+            showModal("Legal AI Assistant Responding...");
+            
+            const profileContext = `Anshuman Kar is a law student with skills in Contract Management, Criminal Law, and Civil Litigation. Experience includes internships at Chandhiok & Mahajan (researching joint ventures, competition law, IBC), QuisLex (document review), and Juris & Juris (researching writ remedies, SLPs).`;
+
+            const prompt = `You are a professional and helpful AI assistant for law student Anshuman Kar. Based on his profile below, draft a concise and insightful preliminary response to the following user query. Your goal is to be helpful while highlighting Anshuman's relevant skills and suggesting that the user connect with him directly for a full discussion. \n\n**Anshuman's Profile:** ${profileContext}\n\n**User Query:** "${userInput}"\n\n**Your Drafted Response:**`;
+
+            const response = await callGeminiAPI(prompt);
+            modalContent.innerHTML = response.replace(/\n/g, '<br>');
+        });
+
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anshuman Kar - Legal Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --netflix-red: #E50914;
+            --netflix-black: #0c0c0c;
+            --off-white: #F5F5F1;
+            --light-gray: #A9A9A9;
+            --card-bg: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--netflix-black);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--netflix-red);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .fade-in-delay-1 { animation-delay: 0.2s; }
+        .fade-in-delay-2 { animation-delay: 0.4s; }
+        .fade-in-delay-3 { animation-delay: 0.6s; }
+        .fade-in-delay-4 { animation-delay: 0.8s; }
+
+        html {
+             font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--netflix-black);
+            color: var(--off-white);
+        }
+
+        #hero {
+             background: linear-gradient(to bottom, rgba(0,0,0,0.6), var(--netflix-black)), url('https://images.unsplash.com/photo-1555099962-4199c345e546?q=80&w=1974&auto=format&fit=crop') no-repeat center center/cover;
+        }
+        
+        #hero::before {
+             content: '';
+             position: absolute;
+             top: 0; left: 0; right: 0; bottom: 0;
+             background: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%);
+        }
+
+        .btn-primary {
+            background-color: var(--netflix-red);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #f6121D;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--netflix-red);
+            border: 1px solid var(--netflix-red);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: var(--netflix-red);
+            color: white;
+        }
+        
+        .section-divider {
+            border-bottom: 8px solid black;
+        }
+
+        .skill-card {
+            background-color: var(--card-bg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .skill-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(229, 9, 20, 0.15), 0 10px 10px -5px rgba(229, 9, 20, 0.1);
+        }
+
+        .publication-card {
+            background-color: var(--card-bg);
+            transition: background-color 0.3s ease;
+        }
+        .publication-card:hover {
+            background-color: #2c2c2c;
+        }
+
+        .experience-card {
+            background-size: cover;
+            background-position: center;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.4s ease;
+            aspect-ratio: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            border: 1px solid #222;
+        }
+        .experience-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(229, 9, 20, 0.4);
+            z-index: 10;
+        }
+        .experience-card-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 100%);
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+        .experience-card-content {
+            position: relative;
+            z-index: 5;
+            padding: 1.5rem;
+            transition: all 0.4s ease;
+        }
+        .experience-card:hover .experience-card-content {
+            transform: translateY(-10px);
+        }
+        .experience-card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+        .experience-card:hover .experience-card-details {
+            max-height: 200px; /* Adjust as needed */
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        #ai-modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+        .spinner {
+            border-top-color: var(--netflix-red);
+            animation: spinner 0.6s linear infinite;
+        }
+        
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-30 backdrop-blur-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="text-3xl font-bold text-red-600 hover:opacity-80 transition-opacity">AK</a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-gray-300 hover:text-white transition-colors duration-300">About</a>
+                    <a href="#philosophy" class="text-gray-300 hover:text-white transition-colors duration-300">Philosophy</a>
+                    <a href="#experience" class="text-gray-300 hover:text-white transition-colors duration-300">Experience</a>
+                    <a href="#skills" class="text-gray-300 hover:text-white transition-colors duration-300">Skills</a>
+                    <a href="#publications" class="text-gray-300 hover:text-white transition-colors duration-300">Publications</a>
+                    <a href="#contact" class="btn-primary text-sm px-5 py-2">Contact</a>
+                </nav>
+                 <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#101010] px-6 pb-4 border-t border-gray-800">
+             <a href="#about" class="block py-3 text-gray-300 hover:text-white transition duration-300">About</a>
+             <a href="#philosophy" class="block py-3 text-gray-300 hover:text-white transition duration-300">Philosophy</a>
+             <a href="#experience" class="block py-3 text-gray-300 hover:text-white transition duration-300">Experience</a>
+             <a href="#skills" class="block py-3 text-gray-300 hover:text-white transition duration-300">Skills</a>
+             <a href="#publications" class="block py-3 text-gray-300 hover:text-white transition duration-300">Publications</a>
+             <a href="#contact" class="block mt-3 btn-primary text-center">Contact</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="h-screen flex items-center justify-center text-center relative">
+            <div class="max-w-4xl mx-auto px-6 relative z-10">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-4 fade-in tracking-tighter">ANSHUMAN KAR</h1>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto fade-in fade-in-delay-1">A driven legal mind, committed to excellence and navigating the adventures of the legal system.</p>
+                <div class="mt-12 fade-in fade-in-delay-2">
+                    <a href="#experience" class="btn-primary text-lg">Explore My Experience</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 md:py-32 section-divider bg-[#141414]">
+            <div class="container mx-auto px-6 max-w-6xl grid md:grid-cols-5 gap-12 items-center">
+                <div class="md:col-span-2 text-center md:text-left">
+                    <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 fade-in">About Me</h2>
+                </div>
+                <div class="md:col-span-3">
+                     <p class="text-lg md:text-xl text-gray-400 leading-relaxed fade-in fade-in-delay-1">
+                        As a dedicated legal professional completing my LLB at KiiT University, I possess a fervent interest in the intricate dynamics of the legal world. My journey has been shaped by diverse, hands-on experiences—from delving into corporate law intricacies at top-tier firms to navigating the complexities of criminal litigation and supporting public law cases.
+                        <br/><br/>
+                        I am driven by a relentless pursuit of knowledge and a commitment to justice. I thrive on deconstructing complex legal challenges and crafting innovative solutions. My goal is to leverage my skills in research, drafting, and advocacy to make a tangible and positive impact within the legal landscape.
+                     </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Philosophy Section -->
+        <section id="philosophy" class="py-20 md:py-32 section-divider">
+             <div class="container mx-auto px-6 max-w-4xl text-center">
+                 <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 fade-in">My Philosophy</h2>
+                 <p class="text-lg md:text-xl text-gray-400 leading-relaxed fade-in fade-in-delay-1">
+                     I believe the law is not just a set of rules, but a dynamic tool for progress and equity. My approach is founded on three pillars: meticulous preparation, creative problem-solving, and unwavering ethical integrity. I strive to understand not just the letter of the law, but its spirit and real-world impact, ensuring that my work is both legally sound and practically effective.
+                 </p>
+            </div>
+        </section>
+
+
+        <!-- Experience Section -->
+        <section id="experience" class="py-20 md:py-32 section-divider bg-[#141414]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 text-center fade-in">Professional Journey</h2>
+                <div id="experience-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    <!-- Vertical Experience Cards will be injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="py-20 md:py-32 section-divider">
+            <div class="container mx-auto px-6 max-w-6xl">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 text-center fade-in">Core Competencies</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div class="skill-card p-8 rounded-lg fade-in border-t-4 border-red-600">
+                        <h3 class="text-2xl font-semibold text-white mb-3">Contract Management</h3>
+                        <p class="text-gray-400">Expertly reviewing, drafting, and managing legal agreements to ensure compliance and mitigate risk for all parties.</p>
+                    </div>
+                    <div class="skill-card p-8 rounded-lg fade-in fade-in-delay-1 border-t-4 border-red-600">
+                        <h3 class="text-2xl font-semibold text-white mb-3">Criminal Law</h3>
+                        <p class="text-gray-400">Conducting in-depth research and providing critical case support in complex matters related to the Indian Penal Code.</p>
+                    </div>
+                    <div class="skill-card p-8 rounded-lg fade-in fade-in-delay-2 border-t-4 border-red-600">
+                        <h3 class="text-2xl font-semibold text-white mb-3">Civil Litigation</h3>
+                        <p class="text-gray-400">Assisting in drafting precise legal documents and researching for writ remedies and special leave petitions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- Publications Section -->
+        <section id="publications" class="py-20 md:py-32 section-divider bg-[#141414]">
+            <div class="container mx-auto px-6 max-w-4xl">
+                 <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 text-center fade-in">Publications & Articles</h2>
+                 <div class="space-y-6">
+                    <div class="publication-card p-6 rounded-lg fade-in fade-in-delay-1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-2xl font-semibold text-white mb-2">The Evolving Landscape of Competition Law in India</h3>
+                                <p class="text-gray-500 mb-3">Published in: KLS Law Review | Jan 2025</p>
+                                <p class="text-gray-400">An analysis of recent amendments and their impact on digital markets.</p>
+                            </div>
+                            <button class="ai-summarize-btn btn-secondary flex items-center justify-center flex-shrink-0 ml-4"><i class="fas fa-wand-magic-sparkles mr-2"></i> Summarize</button>
+                        </div>
+                    </div>
+                     <div class="publication-card p-6 rounded-lg fade-in fade-in-delay-2">
+                        <div class="flex justify-between items-start">
+                             <div>
+                                <h3 class="text-2xl font-semibold text-white mb-2">A Critical Look at Joint Venture Agreements</h3>
+                                <p class="text-gray-500 mb-3">Internal Whitepaper | Chandhiok & Mahajan | Feb 2025</p>
+                                <p class="text-gray-400">Examining common pitfalls and strategies for robust joint venture structuring.</p>
+                             </div>
+                             <button class="ai-summarize-btn btn-secondary flex items-center justify-center flex-shrink-0 ml-4"><i class="fas fa-wand-magic-sparkles mr-2"></i> Summarize</button>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section id="education" class="py-20 md:py-32 section-divider">
+            <div class="container mx-auto px-6 max-w-4xl text-center">
+                 <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 fade-in">Education</h2>
+                 <div class="fade-in fade-in-delay-1">
+                    <p class="text-3xl text-white font-bold">KiiT University</p>
+                    <p class="text-xl text-gray-400 mt-2">Bachelor of Laws - LLB (2020 - 2025)</p>
+                 </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Contact Footer -->
+    <footer id="contact" class="bg-black py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold text-white mb-4 fade-in">Connect With Me</h2>
+            <p class="text-gray-400 mb-8 max-w-xl mx-auto fade-in fade-in-delay-1">
+                Have a question or opportunity? Get an instant, AI-powered preliminary response from my assistant below, or reach out directly via email or LinkedIn.
+            </p>
+            <!-- AI Assistant -->
+            <div class="max-w-2xl mx-auto bg-gray-900/50 p-6 rounded-lg border border-gray-800 fade-in fade-in-delay-2">
+                <textarea id="ai-prompt-input" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-md p-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600" placeholder="Ask about my experience with competition law..."></textarea>
+                <button id="ai-assistant-btn" class="btn-primary w-full mt-4 flex items-center justify-center"><i class="fas fa-wand-magic-sparkles mr-2"></i> Ask AI Assistant</button>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-10 mt-12 fade-in fade-in-delay-3">
+                <a href="mailto:2082011@kls.ac.in" class="flex items-center text-lg text-gray-300 hover:text-red-600 transition duration-300">
+                    <i class="fas fa-envelope mr-3"></i>
+                    <span>2082011@kls.ac.in</span>
+                </a>
+                <a href="https://www.linkedin.com/in/anshuman-kar-65a9a5217" target="_blank" rel="noopener noreferrer" class="flex items-center text-lg text-gray-300 hover:text-red-600 transition duration-300">
+                    <i class="fab fa-linkedin mr-3"></i>
+                    <span>LinkedIn Profile</span>
+                </a>
+            </div>
+            <p class="text-gray-600 mt-16 text-sm">© 2025 Anshuman Kar. Crafted with precision in Bhubaneswar, India.</p>
+        </div>
+    </footer>
+
+    <!-- AI Modal -->
+    <div id="ai-modal" class="fixed inset-0 z-50 hidden">
+        <div id="ai-modal-backdrop" class="fixed inset-0"></div>
+        <div class="relative w-full max-w-2xl p-4 mx-auto mt-20">
+            <div class="bg-gray-900 rounded-lg shadow-2xl border border-gray-700">
+                <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                    <h3 class="text-xl font-bold text-white flex items-center"><i class="fas fa-wand-magic-sparkles mr-3"></i><span id="ai-modal-title-text"></span></h3>
+                    <button id="ai-modal-close" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div id="ai-modal-content" class="p-6 text-gray-300 leading-relaxed min-h-[150px] flex items-center justify-center">
+                    <!-- Loading spinner will be shown here -->
+                </div>
+                 <div class="p-3 bg-gray-900/50 text-xs text-center text-gray-500 border-t border-gray-800">
+                    Disclaimer: This content is AI-generated for demonstration purposes.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Experience Data
+        const experiences = [
+            { role: "Legal Intern", company: "Chandhiok & Mahajan", duration: "Feb 2025", location: "Bengaluru, Karnataka", details: "Researched joint ventures, competition law, and IBC." },
+            { role: "Legal Internship", company: "Syed Khaleel Pasha", duration: "Jan 2025", location: "Bengaluru, Karnataka", details: "Gained practical insights into legal proceedings and client management." },
+            { role: "Legal Executive", company: "QuisLex", duration: "Jun-Jul 2024", location: "Hyderabad, Telangana", details: "Performed high-stakes document reviews, boosting data accuracy." },
+            { role: "Legal Executive", company: "Juris & Juris", duration: "Jul-Aug 2023", location: "Bhubaneswar, Odisha", details: "Researched writ remedies & SLPs; drafted key legal documents." },
+            { role: "Legal Intern", company: "Sanghi Law Chamber", duration: "Jan 2023", location: "Delhi", details: "Assisted senior advocates with case prep in a high-stakes environment." },
+            { role: "Legal Intern", company: "Office of Sr. Advocate Pradeep Rai", duration: "Dec 2022 & Jul 2022", location: "Noida, UP", details: "Supported senior counsel with research and case file management." },
+            { role: "Consumer Court Intern", company: "Government of Odisha", duration: "Jun 2022", location: "Cuttack", details: "Observed and assisted in consumer dispute resolution proceedings." },
+            { role: "Legal Intern", company: "Advocate General Office of Odisha", duration: "Nov-Dec 2021", location: "Odisha", details: "Provided legal support under the Hon. Advocate General's office." }
+        ];
+
+        // Custom SVG Backgrounds for Experience Cards
+        const svgBackgrounds = [
+            `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p1" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M0 0h30v30H0z" fill="none"/><path d="M15 0v30M0 15h30" stroke="#1f1f1f" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="#141414"/><rect width="100%" height="100%" fill="url(#p1)"/></svg>`,
+            `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#141414"/><path d="M-100 150 Q-50 100 0 150 T100 150 T200 150 T300 150 T400 150 T500 150" stroke="#E50914" stroke-width="20" fill="none" opacity="0.05"/><path d="M-100 300 Q-50 250 0 300 T100 300 T200 300 T300 300 T400 300 T500 300" stroke="#E50914" stroke-width="20" fill="none" opacity="0.05"/><path d="M-100 450 Q-50 400 0 450 T100 450 T200 450 T300 450 T400 450 T500 450" stroke="#E50914" stroke-width="20" fill="none" opacity="0.05"/></svg>`,
+            `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#141414"/><g opacity="0.1"><path d="M100 0 L0 150 L50 200 Z" fill="#E50914" opacity="0.2"/><path d="M300 600 L400 450 L350 400 Z" fill="#E50914" opacity="0.2"/><path d="M50 500 L150 550 L100 600 Z" fill="#ffffff" opacity="0.1"/></g></svg>`,
+            `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p2" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="#E50914" opacity="0.3"/></pattern></defs><rect width="100%" height="100%" fill="#141414"/><rect width="100%" height="100%" fill="url(#p2)"/></svg>`,
+            `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p3" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="#1f1f1f" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="#141414"/><rect width="100%" height="100%" fill="url(#p3)"/></svg>`,
+            `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#141414"/><circle cx="50%" cy="0" r="300" fill="#E50914" opacity="0.05"/><circle cx="100%" cy="100%" r="200" fill="#E50914" opacity="0.05"/></svg>`
+        ];
+
+        const experienceGrid = document.getElementById('experience-grid');
+        
+        experiences.forEach((exp, index) => {
+            const card = document.createElement('div');
+            const svgBackground = svgBackgrounds[index % svgBackgrounds.length];
+            const encodedSvg = `data:image/svg+xml;base64,${btoa(svgBackground)}`;
+
+            card.className = 'experience-card fade-in';
+            card.style.backgroundImage = `url('${encodedSvg}')`;
+            card.style.animationDelay = `${index * 0.1}s`;
+
+            card.innerHTML = `
+                <div class="experience-card-overlay"></div>
+                <div class="experience-card-content">
+                    <h3 class="text-2xl font-bold text-white mb-2">${exp.role}</h3>
+                    <p class="text-lg font-semibold text-gray-300">${exp.company}</p>
+                    <div class="experience-card-details mt-4">
+                         <p class="text-sm text-red-500 font-semibold mb-2">${exp.duration} &middot; ${exp.location}</p>
+                         <p class="text-gray-400 text-sm">${exp.details}</p>
+                    </div>
+                </div>
+            `;
+            experienceGrid.appendChild(card);
+        });
+
+        // Mobile menu toggle logic
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                 mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // --- AI & Modal Logic ---
+        const modal = document.getElementById('ai-modal');
+        const modalBackdrop = document.getElementById('ai-modal-backdrop');
+        const modalCloseBtn = document.getElementById('ai-modal-close');
+        const modalTitleText = document.getElementById('ai-modal-title-text');
+        const modalContent = document.getElementById('ai-modal-content');
+        const loadingSpinner = `<div class="spinner w-8 h-8 border-4 border-gray-600 rounded-full"></div>`;
+
+        function showModal(title) {
+            modalTitleText.textContent = title;
+            modalContent.innerHTML = loadingSpinner;
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+            modalContent.innerHTML = '';
+        }
+
+        modalCloseBtn.addEventListener('click', hideModal);
+        modalBackdrop.addEventListener('click', hideModal);
+
+        async function callGeminiAPI(prompt) {
+            const apiKey = "AIzaSyC60o2BgwWdsF_ifYy1y-OPaypCxG9ZzLo"; // User's API Key
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
 
