@@ -80,6 +80,20 @@
             background-color: #f6121D;
             transform: scale(1.05);
         }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--netflix-red);
+            border: 1px solid var(--netflix-red);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: var(--netflix-red);
+            color: white;
+        }
         
         .section-divider {
             border-bottom: 8px solid black;
@@ -102,7 +116,6 @@
             background-color: #2c2c2c;
         }
 
-        /* Styles for Vertical Experience "Posters" */
         .experience-card {
             background-size: cover;
             background-position: center;
@@ -124,10 +137,7 @@
         .experience-card-overlay {
             background: linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 100%);
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
         }
         .experience-card-content {
             position: relative;
@@ -147,6 +157,19 @@
         .experience-card:hover .experience-card-details {
             max-height: 200px; /* Adjust as needed */
             opacity: 1;
+        }
+
+        /* Modal Styles */
+        #ai-modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+        .spinner {
+            border-top-color: var(--netflix-red);
+            animation: spinner 0.6s linear infinite;
         }
         
     </style>
@@ -259,14 +282,24 @@
                  <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 text-center fade-in">Publications & Articles</h2>
                  <div class="space-y-6">
                     <div class="publication-card p-6 rounded-lg fade-in fade-in-delay-1">
-                        <h3 class="text-2xl font-semibold text-white mb-2">The Evolving Landscape of Competition Law in India</h3>
-                        <p class="text-gray-500 mb-3">Published in: KLS Law Review | Jan 2025</p>
-                        <p class="text-gray-400">An analysis of recent amendments and their impact on digital markets.</p>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-2xl font-semibold text-white mb-2">The Evolving Landscape of Competition Law in India</h3>
+                                <p class="text-gray-500 mb-3">Published in: KLS Law Review | Jan 2025</p>
+                                <p class="text-gray-400">An analysis of recent amendments and their impact on digital markets.</p>
+                            </div>
+                            <button class="ai-summarize-btn btn-secondary flex items-center justify-center flex-shrink-0 ml-4"><i class="fas fa-wand-magic-sparkles mr-2"></i> Summarize</button>
+                        </div>
                     </div>
                      <div class="publication-card p-6 rounded-lg fade-in fade-in-delay-2">
-                        <h3 class="text-2xl font-semibold text-white mb-2">A Critical Look at Joint Venture Agreements</h3>
-                        <p class="text-gray-500 mb-3">Internal Whitepaper | Chandhiok & Mahajan | Feb 2025</p>
-                        <p class="text-gray-400">Examining common pitfalls and strategies for robust joint venture structuring.</p>
+                        <div class="flex justify-between items-start">
+                             <div>
+                                <h3 class="text-2xl font-semibold text-white mb-2">A Critical Look at Joint Venture Agreements</h3>
+                                <p class="text-gray-500 mb-3">Internal Whitepaper | Chandhiok & Mahajan | Feb 2025</p>
+                                <p class="text-gray-400">Examining common pitfalls and strategies for robust joint venture structuring.</p>
+                             </div>
+                             <button class="ai-summarize-btn btn-secondary flex items-center justify-center flex-shrink-0 ml-4"><i class="fas fa-wand-magic-sparkles mr-2"></i> Summarize</button>
+                        </div>
                     </div>
                  </div>
             </div>
@@ -290,9 +323,15 @@
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-4xl font-bold text-white mb-4 fade-in">Connect With Me</h2>
             <p class="text-gray-400 mb-8 max-w-xl mx-auto fade-in fade-in-delay-1">
-                Open to new opportunities and collaborations. Let's discuss how I can contribute.
+                Have a question or opportunity? Get an instant, AI-powered preliminary response from my assistant below, or reach out directly via email or LinkedIn.
             </p>
-            <div class="flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-10 fade-in fade-in-delay-2">
+            <!-- AI Assistant -->
+            <div class="max-w-2xl mx-auto bg-gray-900/50 p-6 rounded-lg border border-gray-800 fade-in fade-in-delay-2">
+                <textarea id="ai-prompt-input" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-md p-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600" placeholder="Ask about my experience with competition law..."></textarea>
+                <button id="ai-assistant-btn" class="btn-primary w-full mt-4 flex items-center justify-center"><i class="fas fa-wand-magic-sparkles mr-2"></i> Ask AI Assistant</button>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-10 mt-12 fade-in fade-in-delay-3">
                 <a href="mailto:2082011@kls.ac.in" class="flex items-center text-lg text-gray-300 hover:text-red-600 transition duration-300">
                     <i class="fas fa-envelope mr-3"></i>
                     <span>2082011@kls.ac.in</span>
@@ -305,6 +344,26 @@
             <p class="text-gray-600 mt-16 text-sm">© 2025 Anshuman Kar. Crafted with precision in Bhubaneswar, India.</p>
         </div>
     </footer>
+
+    <!-- AI Modal -->
+    <div id="ai-modal" class="fixed inset-0 z-50 hidden">
+        <div id="ai-modal-backdrop" class="fixed inset-0"></div>
+        <div class="relative w-full max-w-2xl p-4 mx-auto mt-20">
+            <div class="bg-gray-900 rounded-lg shadow-2xl border border-gray-700">
+                <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                    <h3 class="text-xl font-bold text-white flex items-center"><i class="fas fa-wand-magic-sparkles mr-3"></i><span id="ai-modal-title-text"></span></h3>
+                    <button id="ai-modal-close" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div id="ai-modal-content" class="p-6 text-gray-300 leading-relaxed min-h-[150px] flex items-center justify-center">
+                    <!-- Loading spinner will be shown here -->
+                </div>
+                 <div class="p-3 bg-gray-900/50 text-xs text-center text-gray-500 border-t border-gray-800">
+                    Disclaimer: This content is AI-generated for demonstration purposes.
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // Experience Data
@@ -321,26 +380,18 @@
 
         // Custom SVG Backgrounds for Experience Cards
         const svgBackgrounds = [
-            // Subtle grid
             `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p1" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M0 0h30v30H0z" fill="none"/><path d="M15 0v30M0 15h30" stroke="#1f1f1f" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="#141414"/><rect width="100%" height="100%" fill="url(#p1)"/></svg>`,
-            // Wavy lines
             `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#141414"/><path d="M-100 150 Q-50 100 0 150 T100 150 T200 150 T300 150 T400 150 T500 150" stroke="#E50914" stroke-width="20" fill="none" opacity="0.05"/><path d="M-100 300 Q-50 250 0 300 T100 300 T200 300 T300 300 T400 300 T500 300" stroke="#E50914" stroke-width="20" fill="none" opacity="0.05"/><path d="M-100 450 Q-50 400 0 450 T100 450 T200 450 T300 450 T400 450 T500 450" stroke="#E50914" stroke-width="20" fill="none" opacity="0.05"/></svg>`,
-            // Geometric shards
             `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#141414"/><g opacity="0.1"><path d="M100 0 L0 150 L50 200 Z" fill="#E50914" opacity="0.2"/><path d="M300 600 L400 450 L350 400 Z" fill="#E50914" opacity="0.2"/><path d="M50 500 L150 550 L100 600 Z" fill="#ffffff" opacity="0.1"/></g></svg>`,
-            // Abstract dots
             `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p2" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="#E50914" opacity="0.3"/></pattern></defs><rect width="100%" height="100%" fill="#141414"/><rect width="100%" height="100%" fill="url(#p2)"/></svg>`,
-            // Diagonal Lines
             `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="p3" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="#1f1f1f" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="#141414"/><rect width="100%" height="100%" fill="url(#p3)"/></svg>`,
-            // Abstract shape
             `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#141414"/><circle cx="50%" cy="0" r="300" fill="#E50914" opacity="0.05"/><circle cx="100%" cy="100%" r="200" fill="#E50914" opacity="0.05"/></svg>`
         ];
-
 
         const experienceGrid = document.getElementById('experience-grid');
         
         experiences.forEach((exp, index) => {
             const card = document.createElement('div');
-            // Use the custom SVG backgrounds, cycling through the array
             const svgBackground = svgBackgrounds[index % svgBackgrounds.length];
             const encodedSvg = `data:image/svg+xml;base64,${btoa(svgBackground)}`;
 
@@ -369,11 +420,96 @@
             mobileMenu.classList.toggle('hidden');
         });
         
-        // Close mobile menu when a link is clicked
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                  mobileMenu.classList.add('hidden');
             });
+        });
+
+        // --- AI & Modal Logic ---
+        const modal = document.getElementById('ai-modal');
+        const modalBackdrop = document.getElementById('ai-modal-backdrop');
+        const modalCloseBtn = document.getElementById('ai-modal-close');
+        const modalTitleText = document.getElementById('ai-modal-title-text');
+        const modalContent = document.getElementById('ai-modal-content');
+        const loadingSpinner = `<div class="spinner w-8 h-8 border-4 border-gray-600 rounded-full"></div>`;
+
+        function showModal(title) {
+            modalTitleText.textContent = title;
+            modalContent.innerHTML = loadingSpinner;
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+            modalContent.innerHTML = '';
+        }
+
+        modalCloseBtn.addEventListener('click', hideModal);
+        modalBackdrop.addEventListener('click', hideModal);
+
+        async function callGeminiAPI(prompt) {
+            const apiKey = ""; // Keep this empty, it's handled by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                return "No response from AI.";
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                return "Sorry, there was an error contacting the AI assistant.";
+            }
+        }
+        
+        // Event Listener for Publication Summaries
+        document.querySelectorAll('.ai-summarize-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const card = e.target.closest('.publication-card');
+                const title = card.querySelector('h3').textContent;
+                const description = card.querySelector('p:last-of-type').textContent;
+                
+                showModal(`AI Summary for "${title}"`);
+                
+                const prompt = `As a legal expert, please expand on the following publication summary. Provide a few hypothetical key arguments or findings that such an article might contain. Make it insightful and concise, formatted in markdown bullet points.\n\n**Title:** ${title}\n**Summary:** ${description}`;
+                
+                const summary = await callGeminiAPI(prompt);
+                modalContent.innerHTML = summary.replace(/\n/g, '<br>'); // Simple markdown conversion
+            });
+        });
+        
+        // Event Listener for AI Assistant
+        const aiAssistantBtn = document.getElementById('ai-assistant-btn');
+        const aiPromptInput = document.getElementById('ai-prompt-input');
+
+        aiAssistantBtn.addEventListener('click', async () => {
+            const userInput = aiPromptInput.value;
+            if (!userInput.trim()) {
+                // Using a custom modal for alert
+                showModal("Input Required");
+                modalContent.innerHTML = "Please enter a question or message.";
+                return;
+            }
+
+            showModal("Legal AI Assistant Responding...");
+            
+            const profileContext = `Anshuman Kar is a law student with skills in Contract Management, Criminal Law, and Civil Litigation. Experience includes internships at Chandhiok & Mahajan (researching joint ventures, competition law, IBC), QuisLex (document review), and Juris & Juris (researching writ remedies, SLPs).`;
+
+            const prompt = `You are a professional and helpful AI assistant for law student Anshuman Kar. Based on his profile below, draft a concise and insightful preliminary response to the following user query. Your goal is to be helpful while highlighting Anshuman's relevant skills and suggesting that the user connect with him directly for a full discussion. \n\n**Anshuman's Profile:** ${profileContext}\n\n**User Query:** "${userInput}"\n\n**Your Drafted Response:**`;
+
+            const response = await callGeminiAPI(prompt);
+            modalContent.innerHTML = response.replace(/\n/g, '<br>');
         });
 
     </script>
